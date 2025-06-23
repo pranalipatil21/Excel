@@ -14,8 +14,9 @@ export default function Upload() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const navigate = useNavigate();
   const validExtensions = [".xls", ".xlsx"];
 
   const handleFileChange = (file) => {
@@ -48,7 +49,6 @@ export default function Upload() {
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
-        // Step 1: Parse Excel and store JSON
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: "array" });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -57,7 +57,6 @@ export default function Upload() {
         const limitedData = jsonData.slice(0, 100);
         localStorage.setItem("excelData", JSON.stringify(limitedData));
 
-        // Step 2: Upload to backend
         const formData = new FormData();
         formData.append("file", selectedFile);
 
@@ -85,6 +84,12 @@ export default function Upload() {
     reader.readAsArrayBuffer(selectedFile);
   };
 
+  const highlight = (text) => {
+    if (!searchQuery) return text;
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    return <span dangerouslySetInnerHTML={{ __html: text.replace(regex, "<mark>$1</mark>") }} />;
+  };
+
   return (
     <div
       className="min-h-screen text-green-200 font-detective relative overflow-x-hidden"
@@ -95,7 +100,7 @@ export default function Upload() {
       }}
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
-      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} />
+      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} onSearchChange={setSearchQuery} />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-12 max-w-3xl mx-auto">
@@ -106,10 +111,13 @@ export default function Upload() {
         <div className="bg-black/60 p-4 rounded-md border border-lime-500 mb-10">
           <h3 className="text-lime-300 font-semibold text-lg mb-2">🧾 Mission Brief:</h3>
           <ul className="list-disc pl-5 text-sm space-y-1">
-            <li>Accepted File: .xls or .xlsx</li>
-            <li>Top 100 rows used for analysis 🚫</li>
-            <li>Drag & drop enabled 📂</li>
-            <li>Secret AI will process your data 🔒</li>
+            {["Accepted File: .xls or .xlsx", "Top 100 rows used for analysis 🚫", "Drag & drop enabled 📂", "Secret AI will process your data 🔒"]
+              .filter((line) =>
+                !searchQuery || line.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((line, i) => (
+                <li key={i}>{highlight(line)}</li>
+              ))}
           </ul>
         </div>
 
@@ -118,7 +126,7 @@ export default function Upload() {
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
         >
-          <p className="mb-4 text-lime-100">🧩 Drag & drop your file here or</p>
+          <p className="mb-4 text-lime-100">{highlight("🧩 Drag & drop your file here or")}</p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <label className="btn-glow cursor-pointer">

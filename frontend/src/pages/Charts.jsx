@@ -39,7 +39,7 @@ export default function Charts() {
   const [xAxis, setXAxis] = useState("");
   const [yAxis, setYAxis] = useState([]);
   const [chartType, setChartType] = useState("Bar");
-  const [isDark, setIsDark] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const chartRef = useRef();
 
   useEffect(() => {
@@ -53,10 +53,18 @@ export default function Charts() {
     }
   }, []);
 
-  const labels = excelData.map((row) => row[xAxis] ?? "");
+  const filteredData = excelData.filter((row) =>
+    searchQuery
+      ? Object.values(row).some((val) =>
+          String(val).toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : true
+  );
+
+  const labels = filteredData.map((row) => row[xAxis] ?? "");
   const datasets = yAxis.map((col, idx) => ({
     label: col,
-    data: excelData.map((row) =>
+    data: filteredData.map((row) =>
       typeof row[col] === "number" ? row[col] : parseFloat(row[col]) || 0
     ),
     backgroundColor: `hsl(${(idx * 360) / yAxis.length}, 70%, 50%)`,
@@ -103,6 +111,12 @@ export default function Charts() {
     pdf.save("chart.pdf");
   };
 
+  const highlightMatch = (text) => {
+    if (!searchQuery) return text;
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    return <span dangerouslySetInnerHTML={{ __html: text.replace(regex, "<mark>$1</mark>") }} />;
+  };
+
   const ChartComponent = {
     Bar: <Bar data={chartData} />,
     Line: <Line data={chartData} />,
@@ -113,31 +127,22 @@ export default function Charts() {
 
   return (
     <div
-      className={`min-h-screen font-detective relative ${
-        isDark ? "bg-black text-white" : "bg-white text-black"
-      }`}
+      className="min-h-screen font-detective relative bg-black text-white"
       style={{
-        backgroundImage: isDark ? `url(${detectiveBg})` : "none",
+        backgroundImage: `url(${detectiveBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {isDark && <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />}
-      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} onSearchChange={setSearchQuery} />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-12 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-4xl font-bold text-lime-300">📊 Filterable Charts</h2>
-          <button
-            onClick={() => setIsDark((prev) => !prev)}
-            className="px-4 py-2 rounded-full border border-lime-400 text-sm hover:bg-lime-600"
-          >
-            Toggle {isDark ? "Light" : "Dark"} Theme
-          </button>
         </div>
 
-        {/* Navigation Buttons */}
         <div className="flex flex-wrap gap-4 mb-10">
           <Link to="/upload" className="btn-glow text-sm">🧾 Upload Clue</Link>
           <Link to="/history" className="btn-glow text-sm">📁 Case History</Link>
@@ -220,11 +225,11 @@ export default function Charts() {
                   </tr>
                 </thead>
                 <tbody>
-                  {excelData.map((row, idx) => (
+                  {filteredData.map((row, idx) => (
                     <tr key={idx} className="border-t border-lime-700">
                       {columns.map((col, i) => (
                         <td key={i} className="px-2 py-1 whitespace-pre-wrap">
-                          {row[col] ?? ""}
+                          {highlightMatch(String(row[col] ?? ""))}
                         </td>
                       ))}
                     </tr>
@@ -257,6 +262,10 @@ export default function Charts() {
         .btn-glow:hover {
           transform: scale(1.05);
           box-shadow: 0 0 22px rgba(163, 230, 53, 0.8);
+        }
+        mark {
+          background-color: yellow;
+          color: black;
         }
       `}</style>
     </div>

@@ -9,22 +9,27 @@ import excelIcon from "../assests/excel-icon.png";
 export default function History() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [history, setHistory] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch history from MongoDB
   useEffect(() => {
-    const storedHistory = JSON.parse(localStorage.getItem("uploadHistory")) || [];
-    setHistory(storedHistory.slice(0, 10));
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/upload/history");
+        const data = await response.json();
+        setHistory(data);
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    };
+
+    fetchHistory();
   }, []);
 
-  const clearHistory = () => {
-    localStorage.removeItem("uploadHistory");
-    setHistory([]);
-  };
-
-  const handleDelete = (indexToDelete) => {
-    const updatedHistory = history.filter((_, i) => i !== indexToDelete);
-    setHistory(updatedHistory);
-    localStorage.setItem("uploadHistory", JSON.stringify(updatedHistory));
-  };
+  // Filter history based on search input
+  const filteredHistory = history.filter((entry) =>
+    entry.originalName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div
@@ -36,7 +41,10 @@ export default function History() {
       }}
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
-      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} />
+      <NavbarMain
+        onToggleDrawer={() => setIsDrawerOpen(true)}
+        onSearchChange={(query) => setSearchQuery(query)}
+      />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-12 max-w-3xl mx-auto">
@@ -44,11 +52,11 @@ export default function History() {
           📁 Upload History
         </h2>
 
-        {history.length === 0 ? (
+        {filteredHistory.length === 0 ? (
           <p className="text-center text-lime-200">No uploads found yet.</p>
         ) : (
           <ul className="space-y-4">
-            {history.map((entry, index) => (
+            {filteredHistory.map((entry, index) => (
               <li
                 key={index}
                 className="bg-black/60 p-4 rounded-lg border border-lime-500 flex justify-between items-center gap-4"
@@ -56,10 +64,10 @@ export default function History() {
                 <div className="flex items-center gap-4">
                   <img src={excelIcon} alt="Excel" className="w-8 h-8" />
                   <div>
-                    <p className="text-lime-100 font-semibold">{entry.name}</p>
+                    <p className="text-lime-100 font-semibold">{entry.originalName}</p>
                     <p className="text-gray-300 text-sm">{(entry.size / 1024).toFixed(2)} KB</p>
                     <p className="text-gray-400 text-xs">
-                      Uploaded on: {new Date(entry.date).toLocaleString()}
+                      Uploaded on: {new Date(entry.uploadDate).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -76,27 +84,10 @@ export default function History() {
                   ) : (
                     <span className="text-xs text-gray-400 italic">No URL</span>
                   )}
-                  <button
-                    onClick={() => handleDelete(index)}
-                    className="text-xs bg-red-600 text-white font-semibold px-3 py-1 rounded hover:bg-red-400 transition"
-                  >
-                    🗑️ Delete
-                  </button>
                 </div>
               </li>
             ))}
           </ul>
-        )}
-
-        {history.length > 0 && (
-          <div className="text-center mt-6">
-            <button
-              onClick={clearHistory}
-              className="btn-glow px-4 py-2 mt-4 text-sm"
-            >
-              🧹 Clear All History
-            </button>
-          </div>
         )}
 
         <div className="text-center mt-10">

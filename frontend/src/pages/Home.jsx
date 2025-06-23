@@ -12,6 +12,38 @@ export default function Home() {
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const features = [
+    {
+      to: "/upload",
+      icon: "🧾",
+      title: "Upload Clue",
+      desc: "Start your investigation.",
+    },
+    {
+      to: "/charts",
+      icon: "📊",
+      title: "Analyze Patterns",
+      desc: "Reveal trends and spikes.",
+    },
+    {
+      to: "/history",
+      icon: "📁",
+      title: "Case History",
+      desc: "Review past investigations.",
+    },
+    {
+      to: "/chat",
+      icon: "🧠",
+      title: "Interrogate AI",
+      desc: "Ask the data detective.",
+    },
+  ];
+
+  const filteredFeatures = features.filter(({ title, desc }) =>
+    (title + desc).toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -51,7 +83,10 @@ export default function Home() {
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
 
-      <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} />
+      <NavbarMain
+        onToggleDrawer={() => setIsDrawerOpen(true)}
+        onSearchChange={setSearchQuery}
+      />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-8 py-10">
@@ -79,32 +114,7 @@ export default function Home() {
 
         {/* Features */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {[
-            {
-              to: "/upload",
-              icon: "🧾",
-              title: "Upload Clue",
-              desc: "Start your investigation.",
-            },
-            {
-              to: "/charts",
-              icon: "📊",
-              title: "Analyze Patterns",
-              desc: "Reveal trends and spikes.",
-            },
-            {
-              to: "/history",
-              icon: "📁",
-              title: "Case History",
-              desc: "Review past investigations.",
-            },
-            {
-              to: "/chat",
-              icon: "🧠",
-              title: "Interrogate AI",
-              desc: "Ask the data detective.",
-            },
-          ].map(({ to, icon, title, desc }, i) => (
+          {filteredFeatures.map(({ to, icon, title, desc }, i) => (
             <Link
               key={i}
               to={to}

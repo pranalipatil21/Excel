@@ -54,4 +54,15 @@ router.post("/excel", upload.single("file"), async (req, res) => {
   }
 });
 
+// GET route to fetch recent upload history
+router.get("/history", async (req, res) => {
+  try {
+    const uploads = await Upload.find().sort({ uploadDate: -1 }).limit(10);
+    res.json(uploads);
+  } catch (err) {
+    res.status(500).json({ message: "❌ Failed to fetch history", error: err.message });
+  }
+});
+
+
 module.exports = router;

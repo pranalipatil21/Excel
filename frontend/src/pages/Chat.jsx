@@ -3,41 +3,110 @@ import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import detectiveBg from "../assests/b.gif";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from "chart.js";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function Chat() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [answerData, setAnswerData] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handleAsk = () => {
     const lowerQ = question.toLowerCase();
+    const data = JSON.parse(localStorage.getItem("excelData"));
+    if (!data || data.length === 0) {
+      setAnswer("⚠️ No data available. Please upload a file first.");
+      setAnswerData(null);
+      return;
+    }
+
+    const keys = Object.keys(data[0]);
+    const mentionedKey = keys.find(k => lowerQ.includes(k.toLowerCase())) || keys[1];
+    const labelKey = keys[0];
+
+    let result = "";
+    let chartValue = 0;
 
     if (lowerQ.includes("highest") || lowerQ.includes("maximum") || lowerQ.includes("greatest")) {
-      const data = JSON.parse(localStorage.getItem("excelData"));
-      if (data && data.length > 0) {
-        const keys = Object.keys(data[0]);
-        const keyToCheck = keys[1]; // second column assumed to be numeric
-        const labelKey = keys[0];   // first column as label
-
-        const maxRow = data.reduce((prev, curr) =>
-          parseFloat(curr[keyToCheck]) > parseFloat(prev[keyToCheck]) ? curr : prev
-        );
-        setAnswer(`🔍 Highest ${keyToCheck} is ${maxRow[keyToCheck]} (Label: ${maxRow[labelKey]})`);
-      } else {
-        setAnswer("⚠️ No data available. Please upload a file first.");
-      }
+      const maxRow = data.reduce((prev, curr) =>
+        parseFloat(curr[mentionedKey]) > parseFloat(prev[mentionedKey]) ? curr : prev
+      );
+      result = `🔍 Highest ${mentionedKey} is ${maxRow[mentionedKey]} (Label: ${maxRow[labelKey]})`;
+      chartValue = maxRow[mentionedKey];
+    } else if (lowerQ.includes("lowest") || lowerQ.includes("minimum") || lowerQ.includes("smallest")) {
+      const minRow = data.reduce((prev, curr) =>
+        parseFloat(curr[mentionedKey]) < parseFloat(prev[mentionedKey]) ? curr : prev
+      );
+      result = `📉 Lowest ${mentionedKey} is ${minRow[mentionedKey]} (Label: ${minRow[labelKey]})`;
+      chartValue = minRow[mentionedKey];
+    } else if (lowerQ.includes("average") || lowerQ.includes("mean")) {
+      const sum = data.reduce((acc, curr) => acc + parseFloat(curr[mentionedKey]), 0);
+      const avg = (sum / data.length).toFixed(2);
+      result = `📊 Average ${mentionedKey} is ${avg}`;
+      chartValue = avg;
+    } else if (lowerQ.includes("sum") || lowerQ.includes("total")) {
+      const total = data.reduce((acc, curr) => acc + parseFloat(curr[mentionedKey]), 0);
+      result = `📈 Total ${mentionedKey} is ${total}`;
+      chartValue = total;
     } else {
-      setAnswer("🤖 I'm still learning. Try asking things like: 'What is the highest sales?'");
+      result = "🤖 I'm still learning. Try asking: 'What is the highest sales?'";
     }
+
+    setAnswer(result);
+    setAnswerData({ label: mentionedKey, value: chartValue });
+    speak(result);
+    setHistory(prev => [...prev, { q: question, a: result }]);
   };
 
   const handleReset = () => {
     setQuestion("");
     setAnswer("");
+    setAnswerData(null);
+    setHistory([]);
   };
 
   const handleSampleQuestion = () => {
     setQuestion("What is the highest value?");
+  };
+
+  const renderBarChart = () => {
+    if (!answerData) return null;
+    return (
+      <Bar
+        data={{
+          labels: [answerData.label],
+          datasets: [{
+            label: answerData.label,
+            data: [answerData.value],
+            backgroundColor: '#84cc16'
+          }]
+        }}
+        options={{
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }}
+      />
+    );
   };
 
   return (
@@ -54,10 +123,27 @@ export default function Chat() {
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-12 max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold text-lime-300 mb-6 text-center">🧠 Interrogate AI</h2>
-        <p className="text-lime-100 mb-6 text-center">
-          Ask questions about your uploaded Excel data.
-        </p>
+        <h2 className="text-4xl font-bold text-lime-300 mb-4 text-center">🧠 Interrogate AI</h2>
+
+        {/* 🚀 How to Use AI Section */}
+        <div className="bg-black/60 border border-lime-500 rounded-md p-4 mb-6">
+          <h3 className="text-lime-300 font-semibold mb-2 text-lg">🚀 How to Use the AI Feature</h3>
+          <ul className="list-disc list-inside text-lime-100 space-y-1 text-sm">
+            <li>📁 Upload your Excel file in the <strong>Upload</strong> section first.</li>
+            <li>🤔 Then, type your question in natural language. For example: <em>"What is the highest sales?"</em></li>
+            <li>🧠 The AI will analyze your data and give you the answer with a chart!</li>
+            <li>✅ Supported question types include:
+              <ul className="list-disc list-inside ml-4 mt-1">
+                <li>Highest / Maximum</li>
+                <li>Lowest / Minimum</li>
+                <li>Average / Mean</li>
+                <li>Total / Sum</li>
+              </ul>
+            </li>
+            <li>🔊 AI will also speak out the answer for better accessibility.</li>
+            <li>📜 You can review all your previous questions in the history section.</li>
+          </ul>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <input
@@ -80,8 +166,21 @@ export default function Chat() {
         </div>
 
         {answer && (
-          <div className="bg-black/60 border border-lime-400 p-4 rounded-lg">
-            <p className="text-lime-200">{answer}</p>
+          <div className="bg-black/60 border border-lime-400 p-4 rounded-lg mb-4">
+            <p className="text-lime-200 mb-2">{answer}</p>
+            {renderBarChart()}
+          </div>
+        )}
+
+        {history.length > 0 && (
+          <div className="bg-black/50 p-4 mt-6 rounded">
+            <h3 className="text-lime-300 font-semibold mb-2">📜 Question History</h3>
+            {history.map((h, idx) => (
+              <div key={idx} className="mb-2">
+                <p className="text-lime-400 text-sm">Q: {h.q}</p>
+                <p className="text-white text-sm">A: {h.a}</p>
+              </div>
+            ))}
           </div>
         )}
       </main>

@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAvatar from "../assests/detective.png";
 
-export default function NavbarMain({ onToggleDrawer }) {
+export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const dropdownRef = useRef();
   const navigate = useNavigate();
 
-  // Fetch real user name from profile API
+  // Fetch user profile
   const fetchProfile = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/user/profile", {
@@ -32,7 +34,7 @@ export default function NavbarMain({ onToggleDrawer }) {
     fetchProfile();
   }, []);
 
-  // Close dropdown when clicked outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -48,9 +50,17 @@ export default function NavbarMain({ onToggleDrawer }) {
     navigate("/login");
   };
 
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
+
   return (
     <nav className="relative z-10 flex justify-between items-center px-6 py-4 bg-black/70 border-b border-lime-400 shadow-md">
-      {/* Left: Drawer Toggle + Logo */}
+      {/* Left: Logo + Drawer */}
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleDrawer}
@@ -67,12 +77,14 @@ export default function NavbarMain({ onToggleDrawer }) {
       <div className="hidden sm:block flex-1 mx-6">
         <input
           type="text"
+          value={searchQuery}
+          onChange={handleSearchChange}
           placeholder="Search Case..."
           className="w-full p-2 bg-black/40 border border-lime-400 rounded placeholder-lime-300 text-lime-100 focus:outline-none"
         />
       </div>
 
-      {/* Right: User Avatar & Dropdown */}
+      {/* Right: Avatar & Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <div
           className="flex items-center space-x-3 cursor-pointer"
