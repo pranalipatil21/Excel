@@ -141,7 +141,6 @@ export default function Chat() {
               </ul>
             </li>
             <li>🔊 AI will also speak out the answer for better accessibility.</li>
-            <li>📜 You can review all your previous questions in the history section.</li>
           </ul>
         </div>
 

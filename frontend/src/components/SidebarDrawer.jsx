@@ -64,26 +64,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
             </Link>
           ))}
 
-          {/* Quick Stats */}
-          <div className="mt-6 border-t border-lime-500 pt-4 text-sm text-lime-300">
-            <p>
-              🕵️‍♂️ Cases Solved: <span className="text-white">12</span>
-            </p>
-            <p>
-              📂 Files Analyzed: <span className="text-white">34</span>
-            </p>
-          </div>
-
-          {/* Recent Activities */}
-          <div className="mt-6 border-t border-lime-500 pt-4 text-sm">
-            <h3 className="text-lime-300 font-semibold mb-2">Recent</h3>
-            <ul className="space-y-1 text-lime-100">
-              <li>🔍 Clue.xlsx scanned</li>
-              <li>📊 Trend chart saved</li>
-              <li>💾 Report created</li>
-            </ul>
-          </div>
-
+       
           {/* Help Link */}
           <Link
             to="/help"

@@ -4,19 +4,24 @@ import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import detectiveBg from "../assests/b.gif";
-import avatar from "../assests/detective.png";
+import defaultAvatar from "../assests/detective.png";
 
 export default function Profile() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [role, setRole] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState(defaultAvatar);
   const navigate = useNavigate();
 
   const fetchProfile = async () => {
     try {
+      setLoading(true);
       const res = await fetch("http://localhost:5000/api/user/profile", {
         method: "GET",
         headers: {
@@ -32,6 +37,14 @@ export default function Profile() {
       const data = await res.json();
       setProfileData(data);
       setNameInput(data.name);
+      setEmailInput(data.email);
+      setRole(data.role || "User");
+      setError("");
+
+      // If user has profile picture URL
+      if (data.avatarUrl) {
+        setAvatarPreview(data.avatarUrl);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,14 +57,20 @@ export default function Profile() {
   }, []);
 
   const handleSave = async () => {
+    if (nameInput.trim() === "") {
+      setError("Name cannot be empty.");
+      return;
+    }
+
     try {
+      setLoading(true);
       const res = await fetch("http://localhost:5000/api/user/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ name: nameInput }),
+        body: JSON.stringify({ name: nameInput, email: emailInput }),
       });
 
       if (!res.ok) {
@@ -59,15 +78,28 @@ export default function Profile() {
       }
 
       setEditMode(false);
+      setSuccess("Profile updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
       fetchProfile();
+      setError("");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarPreview(URL.createObjectURL(file));
+      // Optional: upload to backend if supported
+    }
   };
 
   return (
@@ -88,59 +120,106 @@ export default function Profile() {
           🕵️ Your Profile
         </h2>
 
+        {error && (
+          <div className="bg-red-600 text-white p-3 mb-4 rounded text-center">
+            ❌ {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-600 text-white p-3 mb-4 rounded text-center">
+            ✅ {success}
+          </div>
+        )}
+
         {loading ? (
           <p className="text-center text-lime-200">Loading...</p>
-        ) : error ? (
-          <p className="text-center text-red-400">{error}</p>
         ) : (
-          <div className="bg-black/60 border border-lime-500 p-6 rounded-lg shadow-lg">
+          <div className="bg-black/60 border border-lime-500 p-6 rounded-lg shadow-lg transition-opacity duration-500 ease-in opacity-100">
             <div className="flex items-center gap-6 mb-6">
-              <img
-                src={avatar}
-                alt="Detective Avatar"
-                className="w-20 h-20 rounded-full border-2 border-lime-400 shadow-md"
-              />
+              <label htmlFor="avatar-upload" className="cursor-pointer">
+                <img
+                  src={avatarPreview}
+                  alt="Avatar"
+                  className="w-20 h-20 rounded-full border-2 border-lime-400 shadow-md"
+                />
+                {editMode && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="avatar-upload"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                )}
+              </label>
+
               <div>
                 {editMode ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-lime-200 font-semibold">Detective</span>
+                  <>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lime-200 font-semibold">Detective</span>
+                      <input
+                        type="text"
+                        className="text-black rounded px-2 py-1"
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                      />
+                    </div>
                     <input
-                      type="text"
+                      type="email"
                       className="text-black rounded px-2 py-1"
-                      value={nameInput}
-                      onChange={(e) => setNameInput(e.target.value)}
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="Email"
                     />
-                  </div>
+                  </>
                 ) : (
-                  <h3 className="text-2xl font-bold text-lime-200">
-                    Detective {profileData.name}
-                  </h3>
+                  <>
+                    <h3 className="text-2xl font-bold text-lime-200">
+                      Detective {profileData.name}
+                    </h3>
+                    <p className="text-lime-300 text-sm">{profileData.email}</p>
+                  </>
                 )}
-                <p className="text-lime-300 text-sm">{profileData.email}</p>
                 <p className="text-lime-400 text-xs mt-1">
                   🗓️ Joined: {new Date(profileData.createdAt).toDateString()}
                 </p>
+                <p className="text-lime-400 text-xs mt-1">🔑 Role: {role}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-black/70 p-4 rounded text-center border border-lime-400">
-                <h4 className="text-xl font-semibold text-lime-200">📁 Datasets Uploaded</h4>
-                <p className="text-2xl text-white mt-2">7</p>
-              </div>
-              <div className="bg-black/70 p-4 rounded text-center border border-lime-400">
-                <h4 className="text-xl font-semibold text-lime-200">⏱️ Hours Spent</h4>
-                <p className="text-2xl text-white mt-2">22.5</p>
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <button
-                onClick={() => (editMode ? handleSave() : setEditMode(true))}
-                className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-4 py-2 rounded"
-              >
-                {editMode ? "💾 Save" : "✏️ Edit Profile"}
-              </button>
+            <div className="flex flex-wrap gap-3 justify-between mt-4">
+              {editMode ? (
+                <>
+                  <button
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-4 py-2 rounded disabled:opacity-50"
+                  >
+                    💾 Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditMode(false);
+                      setNameInput(profileData.name);
+                      setEmailInput(profileData.email);
+                      setError("");
+                      setSuccess("");
+                    }}
+                    className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded"
+                  >
+                    ❌ Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-4 py-2 rounded"
+                >
+                  ✏️ Edit Profile
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded"
