@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 /**
  * Dashboard Sharing Component
@@ -20,9 +22,8 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-  const loadShares = async () => {
+  const loadShares = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE}/dashboard/${dashboardId}/shares`);
       setShares(response.data.shares || []);
@@ -30,7 +31,7 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
       console.error("Error loading shares:", error);
       // Silently fail - user may not have backend auth set up yet
     }
-  };
+  }, [dashboardId]);
 
   /**
    * Load existing shares
@@ -39,7 +40,7 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
     if (dashboardId) {
       loadShares();
     }
-  }, [dashboardId]);
+  }, [dashboardId, loadShares]);
 
   /**
    * Create a new share (link or email)

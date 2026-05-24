@@ -53,6 +53,20 @@ const DashboardBuilder = ({ uploadId, availableColumns = [], tableData = [], onS
     { id: "radar", label: "Radar Chart", icon: "🎲", color: "bg-indigo-100 text-indigo-700" },
   ];
 
+  // Color palette used for pie/doughnut charts
+  const colors = [
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+    "#14b8a6",
+    "#f97316",
+    "#06b6d4",
+    "#84cc16",
+  ];
+
   /**
    * Add a new widget to dashboard
    */
