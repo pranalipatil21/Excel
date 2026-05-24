@@ -22,15 +22,6 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
 
   const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-  /**
-   * Load existing shares
-   */
-  useEffect(() => {
-    if (dashboardId) {
-      loadShares();
-    }
-  }, [dashboardId]);
-
   const loadShares = async () => {
     try {
       const response = await axios.get(`${API_BASE}/dashboard/${dashboardId}/shares`);
@@ -40,6 +31,15 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
       // Silently fail - user may not have backend auth set up yet
     }
   };
+
+  /**
+   * Load existing shares
+   */
+  useEffect(() => {
+    if (dashboardId) {
+      loadShares();
+    }
+  }, [dashboardId]);
 
   /**
    * Create a new share (link or email)

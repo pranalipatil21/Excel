@@ -5,6 +5,8 @@ import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [userName, setUserName] = useState("");
@@ -46,7 +48,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user/profile", {
+        const res = await fetch(`${API_BASE}/user/profile`, {
           method: "GET",
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),

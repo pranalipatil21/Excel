@@ -291,8 +291,7 @@ export default function Charts() {
   const [showInsertionMenu, setShowInsertionMenu] = useState(false);
   const [currentUploadId, setCurrentUploadId] = useState(null);
   const [activeDashboard, setActiveDashboard] = useState(null);
-  const [showDashboardBuilder, setShowDashboardBuilder] = useState(false);
-  const [showDashboardSharing, setShowDashboardSharing] = useState(false);
+  
   const [featureTab, setFeatureTab] = useState("insights"); // insights, dashboard, sharing
   const chartRef = useRef();
 

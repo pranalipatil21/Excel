@@ -5,6 +5,8 @@ import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import excelIcon from "../assests/excel-icon.png";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function History() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [history, setHistory] = useState([]);
@@ -14,7 +16,7 @@ export default function History() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/upload/history");
+        const response = await fetch(`${API_BASE}/upload/history`);
         const data = await response.json();
         setHistory(data);
       } catch (error) {

@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAvatar from "../assests/detective.png";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userName, setUserName] = useState("");
@@ -12,31 +14,32 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
   const navigate = useNavigate();
 
   // Fetch user profile
-  const fetchProfile = async () => {
-    if (isAdmin) {
-      setUserName("Admin");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/user/profile", {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch name");
-      const data = await res.json();
-      setUserName(data.name);
-    } catch (err) {
-      setUserName("Unknown");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+      const fetchProfile = async () => {
+        if (isAdmin) {
+          setUserName("Admin");
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}/user/profile`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          });
+
+          if (!res.ok) throw new Error("Failed to fetch name");
+          const data = await res.json();
+          setUserName(data.name);
+        } catch (err) {
+          setUserName("Unknown");
+        } finally {
+          setLoading(false);
+        }
+      };
+
     fetchProfile();
   }, [isAdmin]);
 
@@ -56,7 +59,7 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminEmail");
     localStorage.removeItem("adminRole");
-    window.location.replace("/login");
+    navigate("/login", { replace: true });
   };
 
   const handleNavigate = (path) => {
@@ -103,42 +106,46 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
         </div>
 
         {showDropdown && (
-          <div className="theme-card absolute right-0 mt-2 w-48 border rounded-md shadow-lg z-50">
-            <ul className="theme-subtitle text-sm">
+          <div
+            className="theme-card absolute right-0 mt-2 w-52 border rounded-md shadow-lg z-50 overflow-hidden"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <ul className="theme-subtitle text-sm py-1">
               {isAdmin ? (
                 <li>
-                  <button
-                    type="button"
-                    onClick={() => handleNavigate("/admin-dashboard")}
-                    className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                  <Link
+                    to="/admin-dashboard"
+                    onClick={() => setShowDropdown(false)}
+                    className="block w-full px-4 py-2 hover:bg-lime-700/40 transition"
                   >
                     🎛️ Admin Dashboard
-                  </button>
+                  </Link>
                 </li>
               ) : (
                 <>
                   <li>
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate("/profile")}
-                      className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowDropdown(false)}
+                      className="block w-full px-4 py-2 hover:bg-lime-700/40 transition"
                     >
                       👤 View Profile
-                    </button>
+                    </Link>
                   </li>
                   <li>
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate("/settings")}
-                      className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                    <Link
+                      to="/settings"
+                      onClick={() => setShowDropdown(false)}
+                      className="block w-full px-4 py-2 hover:bg-lime-700/40 transition"
                     >
                       ⚙️ Settings
-                    </button>
+                    </Link>
                   </li>
                 </>
               )}
               <li>
                 <button
+                  type="button"
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 hover:bg-lime-700/40 transition"
                 >

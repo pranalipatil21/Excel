@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { Bar, Line, Pie, Radar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -144,7 +144,7 @@ const DashboardBuilder = ({ uploadId, availableColumns = [], tableData = [], onS
       return isNaN(val) ? 0 : val;
     }).slice(0, 20);
 
-    const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+    
 
     return {
       labels,
@@ -176,7 +176,7 @@ const DashboardBuilder = ({ uploadId, availableColumns = [], tableData = [], onS
       return isNaN(val) ? 0 : val;
     }).slice(0, 10);
 
-    const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#84cc16"];
+    
 
     return {
       labels: tableData.slice(0, 10).map((_, i) => `Item ${i + 1}`),

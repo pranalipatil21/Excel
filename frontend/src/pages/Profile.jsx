@@ -5,6 +5,8 @@ import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import defaultAvatar from "../assests/detective.png";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function Profile() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
@@ -21,7 +23,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/user/profile", {
+      const res = await fetch(`${API_BASE}/user/profile`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
@@ -63,7 +65,7 @@ export default function Profile() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/user/update", {
+      const res = await fetch(`${API_BASE}/user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

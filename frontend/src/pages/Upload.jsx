@@ -7,6 +7,8 @@ import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import axios from "axios";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function Upload() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -59,7 +61,7 @@ export default function Upload() {
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        await axios.post("http://localhost:5000/api/upload/excel", formData, {
+        await axios.post(`${API_BASE}/upload/excel`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
