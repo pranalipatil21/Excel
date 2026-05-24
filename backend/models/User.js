@@ -16,6 +16,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-}, { timestamps: true }); // ⏱️ Track createdAt, updatedAt
+}, { timestamps: true }); // ⏱ Track createdAt, updatedAt
 
 module.exports = mongoose.model("User", userSchema);

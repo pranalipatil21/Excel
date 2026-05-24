@@ -4,6 +4,134 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&display=swap');
 
+:root {
+  --theme-bg: #f8fbf6;
+  --theme-surface: #ffffff;
+  --theme-surface-strong: #f6fbf3;
+  --theme-overlay: rgba(248, 251, 246, 0.85);
+  --theme-border: #9dc38d;
+  --theme-accent: #2f8f4e;
+  --theme-accent-strong: #21693a;
+  --theme-text: #1e2d1e;
+  --theme-text-soft: #49644d;
+  --theme-link: #2f8f4e;
+}
+
+:root[data-theme="light"] {
+  --theme-bg: #f8fbf6;
+  --theme-surface: #ffffff;
+  --theme-surface-strong: #f6fbf3;
+  --theme-overlay: rgba(248, 251, 246, 0.85);
+  --theme-border: #9dc38d;
+  --theme-accent: #2f8f4e;
+  --theme-accent-strong: #21693a;
+  --theme-text: #1e2d1e;
+  --theme-text-soft: #49644d;
+  --theme-link: #2f8f4e;
+}
+
+:root[data-theme="dark"] {
+  --theme-bg: #eef5ea;
+  --theme-surface: #f8fcf6;
+  --theme-surface-strong: #f2f9ee;
+  --theme-overlay: rgba(238, 245, 234, 0.85);
+  --theme-border: #90b881;
+  --theme-accent: #2a7f46;
+  --theme-accent-strong: #1f6336;
+  --theme-text: #1c2a1d;
+  --theme-text-soft: #445b47;
+  --theme-link: #2a7f46;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.theme-page {
+  color: var(--theme-text);
+  background: var(--theme-bg);
+}
+
+.theme-overlay {
+  background: var(--theme-overlay);
+  backdrop-filter: blur(2px);
+}
+
+.theme-nav,
+.theme-footer,
+.theme-drawer,
+.theme-card {
+  background: var(--theme-surface);
+  border-color: color-mix(in srgb, var(--theme-border), white 20%);
+  color: var(--theme-text);
+}
+
+.theme-card-strong {
+  background: var(--theme-surface-strong);
+  border-color: color-mix(in srgb, var(--theme-border), white 16%);
+  color: var(--theme-text);
+}
+
+.theme-title {
+  color: var(--theme-accent);
+}
+
+.theme-subtitle,
+.theme-muted {
+  color: var(--theme-text-soft);
+}
+
+.theme-link {
+  color: var(--theme-link);
+}
+
+.theme-link:hover {
+  color: var(--theme-accent);
+}
+
+.theme-btn {
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-strong));
+  color: white;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--theme-accent), transparent 75%);
+  transition: all 0.25s ease-in-out;
+}
+
+.theme-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--theme-accent), transparent 70%);
+}
+
+.theme-input {
+  background: color-mix(in srgb, var(--theme-surface), transparent 15%);
+  color: var(--theme-text);
+  border: 1px solid color-mix(in srgb, var(--theme-border), white 25%);
+  border-radius: 0.75rem;
+}
+
+.theme-input::placeholder {
+  color: color-mix(in srgb, var(--theme-text-soft), black 10%);
+}
+
+.theme-input:focus {
+  outline: none;
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent), transparent 70%);
+}
+
 .font-fantasy {
   font-family: 'Cinzel Decorative', cursive;
+}
+
+.font-detective {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }

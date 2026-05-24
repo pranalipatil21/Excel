@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import detectiveBg from "../assests/b.gif";
 import excelIcon from "../assests/excel-icon.png";
 import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
@@ -63,6 +62,7 @@ export default function Upload() {
         await axios.post("http://localhost:5000/api/upload/excel", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           onUploadProgress: (progressEvent) => {
             const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -91,27 +91,25 @@ export default function Upload() {
   };
 
   return (
-    <div
-      className="min-h-screen text-green-200 font-detective relative overflow-x-hidden"
-      style={{
-        backgroundImage: `url(${detectiveBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+    <div className="theme-page min-h-screen font-detective relative overflow-x-hidden">
+      <div className="absolute inset-0 theme-overlay z-0" />
       <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} onSearchChange={setSearchQuery} />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-12 max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold text-center text-lime-400 mb-6 animate-typewriter">
-          🕵️ Agent, upload your case file to begin investigation...
+        <h2 className="text-4xl font-bold text-center theme-title mb-6 animate-typewriter">
+          Upload your Excel file to begin analysis
         </h2>
 
-        <div className="bg-black/60 p-4 rounded-md border border-lime-500 mb-10">
-          <h3 className="text-lime-300 font-semibold text-lg mb-2">🧾 Mission Brief:</h3>
+        <div className="theme-card p-4 rounded-md border mb-10">
+          <h3 className="theme-title font-semibold text-lg mb-2">Guidelines</h3>
           <ul className="list-disc pl-5 text-sm space-y-1">
-            {["Accepted File: .xls or .xlsx", "Top 100 rows used for analysis 🚫", "Drag & drop enabled 📂", "Secret AI will process your data 🔒"]
+            {[
+              "Accepted file types: .xls or .xlsx",
+              "Top 100 rows are used for analysis",
+              "Drag and drop is enabled",
+              "AI processes your uploaded data",
+            ]
               .filter((line) =>
                 !searchQuery || line.toLowerCase().includes(searchQuery.toLowerCase())
               )
@@ -122,14 +120,14 @@ export default function Upload() {
         </div>
 
         <div
-          className="border-2 border-dashed border-lime-500 p-8 rounded-xl bg-black/70 text-center"
+          className="theme-card border-2 border-dashed p-8 rounded-xl text-center"
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
         >
-          <p className="mb-4 text-lime-100">{highlight("🧩 Drag & drop your file here or")}</p>
+          <p className="mb-4 theme-subtitle">{highlight("Drag and drop your file here or")}</p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <label className="btn-glow cursor-pointer">
+            <label className="theme-btn cursor-pointer px-5 py-2">
               Select File
               <input type="file" accept=".xls,.xlsx" onChange={handleFileInput} hidden />
             </label>
@@ -137,17 +135,17 @@ export default function Upload() {
             <button
               onClick={handleRealSubmit}
               disabled={!selectedFile || isLoading}
-              className={`btn-glow px-6 py-2 ${isLoading ? "opacity-50 cursor-wait" : ""}`}
+              className={`theme-btn px-6 py-2 ${isLoading ? "opacity-50 cursor-wait" : ""}`}
             >
-              {isLoading ? "Scanning Clue..." : "🔍 Upload & Begin Investigation"}
+              {isLoading ? "Uploading..." : "Upload and Analyze"}
             </button>
           </div>
 
           {selectedFile && (
-            <div className="mt-6 bg-black/70 border border-lime-400 rounded-lg p-4 flex items-center gap-4 justify-center">
+            <div className="theme-card mt-6 border rounded-lg p-4 flex items-center gap-4 justify-center">
               <img src={excelIcon} alt="Excel" className="w-8 h-8" />
               <div>
-                <p className="text-lime-100 text-sm">{selectedFile.name}</p>
+                <p className="theme-subtitle text-sm">{selectedFile.name}</p>
                 <p className="text-gray-400 text-xs">{(selectedFile.size / 1024).toFixed(2)} KB</p>
               </div>
             </div>
@@ -165,9 +163,9 @@ export default function Upload() {
           )}
         </div>
 
-        <div className="text-center mt-8 text-lime-100 text-sm">
-          <Link to="/home" className="underline hover:text-lime-300">
-            ← Exit Investigation Room
+        <div className="text-center mt-8 theme-subtitle text-sm">
+          <Link to="/home" className="underline theme-link">
+            Back to Dashboard
           </Link>
         </div>
       </main>
@@ -175,21 +173,6 @@ export default function Upload() {
       <Footer />
 
       <style>{`
-        .font-detective {
-          font-family: 'Courier New', Courier, monospace;
-        }
-        .btn-glow {
-          background: linear-gradient(135deg, #84cc16, #3f6212);
-          padding: 0.5rem 1.25rem;
-          border-radius: 9999px;
-          font-weight: 600;
-          box-shadow: 0 0 15px rgba(132, 204, 22, 0.7);
-          transition: all 0.3s ease-in-out;
-        }
-        .btn-glow:hover {
-          transform: scale(1.05);
-          box-shadow: 0 0 22px rgba(163, 230, 53, 0.8);
-        }
         .animate-typewriter {
           overflow: hidden;
           border-right: .15em solid lime;

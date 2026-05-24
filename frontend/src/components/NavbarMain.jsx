@@ -6,13 +6,19 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const isAdmin = localStorage.getItem("adminRole") === "admin";
 
   const dropdownRef = useRef();
   const navigate = useNavigate();
 
   // Fetch user profile
   const fetchProfile = async () => {
+    if (isAdmin) {
+      setUserName("Admin");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/user/profile", {
         headers: {
@@ -32,7 +38,7 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [isAdmin]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -47,42 +53,38 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminRole");
+    window.location.replace("/login");
   };
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (onSearchChange) {
-      onSearchChange(value);
-    }
+  const handleNavigate = (path) => {
+    setShowDropdown(false);
+    navigate(path);
   };
 
   return (
-    <nav className="relative z-10 flex justify-between items-center px-6 py-4 bg-black/70 border-b border-lime-400 shadow-md">
+    <nav className="theme-nav relative z-10 flex justify-between items-center px-6 py-4 border-b shadow-md">
       {/* Left: Logo + Drawer */}
       <div className="flex items-center gap-4">
         <button
-          onClick={onToggleDrawer}
-          className="text-lime-300 text-3xl focus:outline-none hover:text-white transition"
+          onClick={() => onToggleDrawer && onToggleDrawer()}
+          className="theme-title text-3xl focus:outline-none hover:opacity-80 transition"
         >
           ☰
         </button>
-        <Link to="/home" className="flex items-center gap-2 text-lime-300 hover:text-white transition">
-          <span className="text-2xl sm:text-3xl font-bold tracking-wide">🔍 ExcelVerse</span>
+        <Link to={isAdmin ? "/admin-dashboard" : "/home"} className="flex items-center gap-2 theme-title hover:opacity-80 transition">
+          <img
+            src="/excelverse_logo.png"
+            alt="ExcelVerse Logo"
+            className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+          />
+          <span className="text-2xl sm:text-4xl font-bold tracking-wide">ExcelVerse</span>
         </Link>
       </div>
 
-      {/* Center: Search Bar */}
-      <div className="hidden sm:block flex-1 mx-6">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          placeholder="Search Case..."
-          className="w-full p-2 bg-black/40 border border-lime-400 rounded placeholder-lime-300 text-lime-100 focus:outline-none"
-        />
-      </div>
+      <div className="flex-1" />
 
       {/* Right: Avatar & Dropdown */}
       <div className="relative" ref={dropdownRef}>
@@ -93,38 +95,52 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
           <img
             src={userAvatar}
             alt="Avatar"
-            className="w-10 h-10 rounded-full border-2 border-lime-400 shadow-md"
+            className="w-10 h-10 rounded-full border-2 border-lime-400/70 shadow-md"
           />
-          <span className="text-lime-200 font-medium hidden sm:inline">
-            {loading ? "..." : `Detective ${userName}`}
+          <span className="theme-subtitle font-medium hidden sm:inline">
+            {loading ? "..." : userName}
           </span>
         </div>
 
         {showDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-black/90 border border-lime-400 rounded-md shadow-lg z-50">
-            <ul className="text-lime-200 text-sm">
-              <li>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 hover:bg-lime-700 transition"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  👤 View Profile
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 hover:bg-lime-700 transition"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  ⚙️ Settings
-                </Link>
-              </li>
+          <div className="theme-card absolute right-0 mt-2 w-48 border rounded-md shadow-lg z-50">
+            <ul className="theme-subtitle text-sm">
+              {isAdmin ? (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigate("/admin-dashboard")}
+                    className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                  >
+                    🎛️ Admin Dashboard
+                  </button>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate("/profile")}
+                      className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                    >
+                      👤 View Profile
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate("/settings")}
+                      className="block px-4 py-2 hover:bg-lime-700/40 transition"
+                    >
+                      ⚙️ Settings
+                    </button>
+                  </li>
+                </>
+              )}
               <li>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 hover:bg-lime-700 transition"
+                  className="w-full text-left px-4 py-2 hover:bg-lime-700/40 transition"
                 >
                   🚪 Logout
                 </button>

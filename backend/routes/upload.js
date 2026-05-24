@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const Upload = require("../models/Upload");
+const verifyToken = require("../middleware/authMiddleware");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -19,36 +21,46 @@ const upload = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("❌ Only .xlsx, .xls, or .csv files are allowed."));
+      cb(new Error(" Only .xlsx, .xls, or .csv files are allowed."));
     }
   }
 });
 
 // POST route to handle file upload
-router.post("/excel", upload.single("file"), async (req, res) => {
+router.post("/excel", verifyToken, upload.single("file"), async (req, res) => {
   try {
     const { name, age, email } = req.body;
+    const userId = req.user?.id || req.user?.userId;
+    const uploader = userId ? await User.findById(userId).select("name email") : null;
+
+    const finalName = uploader?.name || name || "Unknown";
+    const finalEmail = uploader?.email || email || "unknown@local";
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
     const excelfilebase64 = req.file ? req.file.buffer.toString("base64") : null;
 
     const newFile = new Upload({
       originalName: req.file.originalname,
       size: req.file.size,
       uploadDate: new Date(),
-      name,
+      name: finalName,
       age,
-      email,
+      email: finalEmail,
       excelfilebase64
     });
 
     await newFile.save();
 
     res.json({
-      message: "✅ File uploaded and stored in MongoDB!",
+      message: " File uploaded and stored in MongoDB!",
       fileId: newFile._id
     });
   } catch (err) {
     res.status(500).json({
-      message: "❌ Upload failed",
+      message: " Upload failed",
       error: err.message
     });
   }
@@ -60,7 +72,7 @@ router.get("/history", async (req, res) => {
     const uploads = await Upload.find().sort({ uploadDate: -1 }).limit(10);
     res.json(uploads);
   } catch (err) {
-    res.status(500).json({ message: "❌ Failed to fetch history", error: err.message });
+    res.status(500).json({ message: " Failed to fetch history", error: err.message });
   }
 });
 

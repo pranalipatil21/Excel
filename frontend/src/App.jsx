@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
@@ -12,11 +12,18 @@ import History from "./pages/History";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 // 🛡️ Import ProtectedRoute
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "light");
+    localStorage.setItem("theme-mode", "light");
+  }, []);
+
   return (
     <Router>
       <Routes>
@@ -24,6 +31,7 @@ export default function App() {
         <Route path="/" element={<RealmGate />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
 
         {/* 🔐 Protected Routes */}
         <Route
@@ -82,6 +90,9 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* 🔐 Admin Dashboard Route */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
         {/* 🔄 Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />

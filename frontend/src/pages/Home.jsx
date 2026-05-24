@@ -1,8 +1,6 @@
 // src/pages/Home.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import detectiveBg from "../assests/b.gif";
-import magnifier from "../assests/detective.png";
 import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
@@ -18,8 +16,8 @@ export default function Home() {
     {
       to: "/upload",
       icon: "🧾",
-      title: "Upload Clue",
-      desc: "Start your investigation.",
+      title: "Upload File",
+      desc: "Start your analysis.",
     },
     {
       to: "/charts",
@@ -30,14 +28,14 @@ export default function Home() {
     {
       to: "/history",
       icon: "📁",
-      title: "Case History",
-      desc: "Review past investigations.",
+      title: "Upload History",
+      desc: "Review previous uploads.",
     },
     {
       to: "/chat",
       icon: "🧠",
-      title: "Interrogate AI",
-      desc: "Ask the data detective.",
+      title: "Ask AI",
+      desc: "Ask questions from your data.",
     },
   ];
 
@@ -73,15 +71,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen text-white font-detective relative overflow-x-hidden"
-      style={{
-        backgroundImage: `url(${detectiveBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+    <div className="theme-page min-h-screen font-detective relative overflow-x-hidden">
+      <div className="absolute inset-0 theme-overlay z-0" />
 
       <NavbarMain
         onToggleDrawer={() => setIsDrawerOpen(true)}
@@ -92,24 +83,19 @@ export default function Home() {
       <main className="relative z-10 px-8 py-10">
         {/* Hero */}
         <section className="text-center mb-12">
-          <h2 className="text-5xl font-bold text-lime-300 animate-scan">
+          <h2 className="text-5xl font-bold theme-title animate-scan">
             {loading
               ? "Loading..."
               : error
-              ? "Welcome, Detective!"
-              : `Welcome, Detective ${userName}!`}
+              ? "Welcome"
+              : `Welcome, ${userName}!`}
           </h2>
-          <p className="text-lime-100 mt-3 mb-6 max-w-xl mx-auto">
-            Dive into your Excel files like never before—ExcelVerse reveals the hidden truths.
+          <p className="theme-subtitle mt-3 mb-6 max-w-xl mx-auto">
+            Transform spreadsheets into clear insights with a modern analytics workspace.
           </p>
-          <Link to="/upload" className="detective-btn inline-block">
-            Start Investigation
+          <Link to="/upload" className="theme-btn inline-block px-5 py-2">
+            Start Analysis
           </Link>
-          <img
-            src={magnifier}
-            alt="Detective tool"
-            className="mx-auto w-44 h-auto mt-10 animate-scan"
-          />
         </section>
 
         {/* Features */}
@@ -118,7 +104,7 @@ export default function Home() {
             <Link
               key={i}
               to={to}
-              className="group relative p-6 bg-black/60 border border-lime-500 rounded-lg shadow-xl transform hover:scale-105 transition overflow-hidden"
+              className="theme-card group relative p-6 border rounded-lg shadow-xl transform hover:scale-105 transition overflow-hidden"
             >
               <span className="absolute -top-3 -right-3 bg-lime-500 h-8 w-8 flex items-center justify-center rounded-full text-black">
                 {i + 1}
@@ -126,25 +112,25 @@ export default function Home() {
               <div className="text-5xl mb-4 transition group-hover:scale-110">
                 {icon}
               </div>
-              <h4 className="text-xl font-bold text-lime-200 mb-2 group-hover:text-white">
+              <h4 className="text-xl font-bold theme-subtitle mb-2 group-hover:text-white">
                 {title}
               </h4>
-              <p className="text-lime-100">{desc}</p>
+              <p className="theme-subtitle">{desc}</p>
             </Link>
           ))}
         </section>
 
         {/* Steps */}
-        <section className="bg-black/40 p-8 rounded-lg border border-lime-500 max-w-3xl mx-auto mb-16">
-          <h3 className="text-3xl text-lime-300 font-bold mb-6 text-center">
-            🧭 Investigation Steps
+        <section className="theme-card p-8 rounded-lg border max-w-3xl mx-auto mb-16">
+          <h3 className="text-3xl theme-title font-bold mb-6 text-center">
+            Process Steps
           </h3>
-          <div className="flex flex-col md:flex-row justify-between gap-4 text-lime-100 text-sm">
+          <div className="flex flex-col md:flex-row justify-between gap-4 theme-subtitle text-sm">
             {["Upload Excel", "AI Analysis", "See Patterns", "Save Report"].map(
               (s, i) => (
                 <div
                   key={i}
-                  className="flex-1 bg-black/70 p-4 rounded-md text-center hover:bg-lime-900 transition"
+                  className="theme-card-strong flex-1 p-4 rounded-md text-center hover:bg-lime-900/40 transition"
                 >
                   {`${i + 1}. ${s}`}
                 </div>
@@ -155,19 +141,19 @@ export default function Home() {
 
         {/* Why Us */}
         <section className="text-center max-w-4xl mx-auto">
-          <h3 className="text-3xl text-lime-300 font-bold mb-6">
-            💡 Why ExcelVerse?
+          <h3 className="text-3xl theme-title font-bold mb-6">
+            Why ExcelVerse?
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {["Fast Analysis", "Detective Dashboard", "Case Save"].map((text, i) => (
+            {["Fast Analysis", "Unified Dashboard", "Save Reports"].map((text, i) => (
               <div
                 key={i}
-                className="bg-black/60 p-4 rounded-lg border border-lime-500 shadow-md"
+                className="theme-card p-4 rounded-lg border shadow-md"
               >
                 <div className="text-4xl mb-2">
                   {["⚡", "🔍", "💾"][i]}
                 </div>
-                <p className="text-lime-100">{text}</p>
+                <p className="theme-subtitle">{text}</p>
               </div>
             ))}
           </div>
@@ -177,18 +163,6 @@ export default function Home() {
       <Footer />
 
       <style>{`
-        .detective-btn {
-          background: linear-gradient(135deg, #84cc16, #3f6212);
-          padding: 0.5rem 1.25rem;
-          border-radius: 9999px;
-          font-weight: 600;
-          box-shadow: 0 0 12px rgba(132, 204, 22, 0.6);
-          transition: all 0.3s ease-in-out;
-        }
-        .detective-btn:hover {
-          transform: scale(1.1);
-          box-shadow: 0 0 22px rgba(163, 230, 53, 0.8);
-        }
         .animate-scan {
           animation: scan 3s ease-in-out infinite;
         }
@@ -196,9 +170,6 @@ export default function Home() {
           0% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
           100% { transform: translateY(0px); }
-        }
-        .font-detective {
-          font-family: 'Courier New', Courier, monospace;
         }
       `}</style>
     </div>

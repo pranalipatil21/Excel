@@ -19,7 +19,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
       {/* Background Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 theme-overlay z-40"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -30,7 +30,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label="Sidebar Navigation"
-        className={`fixed top-0 left-0 h-full w-64 bg-black/90 border-r border-lime-400 shadow-xl transform transition-transform duration-300 z-50 ${
+        className={`theme-drawer fixed top-0 left-0 h-full w-64 border-r shadow-xl transform transition-transform duration-300 z-50 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -38,7 +38,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
         <div className="flex justify-end p-4">
           <button
             onClick={onClose}
-            className="text-lime-300 text-xl hover:text-white"
+            className="theme-title text-xl hover:opacity-80"
             aria-label="Close sidebar"
           >
             ✕
@@ -46,9 +46,9 @@ export default function SidebarDrawer({ isOpen, onClose }) {
         </div>
 
         {/* Sidebar Content */}
-        <div className="p-6 text-lime-100">
+        <div className="p-6 theme-subtitle">
           {/* Navigation */}
-          <h2 className="text-lime-300 font-bold mb-4">Quick Access</h2>
+          <h2 className="theme-title font-bold mb-4">Quick Access</h2>
           {navItems.map((item, i) => (
             <Link
               key={i}
@@ -56,15 +56,13 @@ export default function SidebarDrawer({ isOpen, onClose }) {
               onClick={onClose}
               className={`block py-2 px-3 rounded transition ${
                 location.pathname === item.path
-                  ? "bg-lime-700 text-white"
-                  : "hover:bg-lime-700"
+                  ? "bg-lime-700/55 text-white"
+                  : "hover:bg-lime-700/35"
               }`}
             >
               📌 {item.label}
             </Link>
           ))}
-
-       
           {/* Help Link */}
           <Link
             to="/help"

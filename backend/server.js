@@ -5,33 +5,46 @@ const cors = require("cors");
 
 const app = express();
 
-// ✅ Middleware first!
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ✅ Then define routes
+// Diagnostics to ensure the expected backend entry is running
+console.log(`[boot] cwd=${process.cwd()}`);
+console.log(`[boot] file=${__filename}`);
+
+// Routes
 const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const uploadRoutes = require("./routes/upload");
+const dashboardRoutes = require("./routes/dashboard");
 
 app.use("/api/user", userRoutes);
-app.use("/api/auth", authRoutes); // 🔐 Auth endpoint: /api/auth/register, /api/auth/login
+app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
+// Health route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ ok: true, service: "excel-analytics-backend" });
+});
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // Root route
 app.get("/", (req, res) => {
-  res.send("🚀 Server is running & MongoDB is connected!");
+  res.send("Server is running & MongoDB is connected!");
+});
+
+// Fallback for unknown routes
+app.use((req, res) => {
+  res.status(404).json({ msg: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
-import detectiveBg from "../assests/b.gif";
 import defaultAvatar from "../assests/detective.png";
 
 export default function Profile() {
@@ -103,21 +102,14 @@ export default function Profile() {
   };
 
   return (
-    <div
-      className="min-h-screen text-white font-detective relative overflow-x-hidden"
-      style={{
-        backgroundImage: `url(${detectiveBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+    <div className="theme-page min-h-screen font-detective relative overflow-x-hidden">
+      <div className="absolute inset-0 theme-overlay z-0" />
       <NavbarMain onToggleDrawer={() => setIsDrawerOpen(true)} />
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <main className="relative z-10 px-6 py-10 max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold text-lime-300 text-center mb-8">
-          🕵️ Your Profile
+        <h2 className="text-4xl font-bold theme-title text-center mb-8">
+          Your Profile
         </h2>
 
         {error && (
@@ -133,9 +125,20 @@ export default function Profile() {
         )}
 
         {loading ? (
-          <p className="text-center text-lime-200">Loading...</p>
+          <p className="text-center theme-subtitle">Loading...</p>
+        ) : !profileData ? (
+          <div className="theme-card border p-6 rounded-lg shadow-lg text-center">
+            <p className="text-red-600 font-medium mb-2">Unable to load profile.</p>
+            <p className="theme-subtitle text-sm mb-4">Please login again or try after backend is running.</p>
+            <button
+              onClick={handleLogout}
+              className="theme-btn font-semibold px-4 py-2 rounded"
+            >
+              Go to Login
+            </button>
+          </div>
         ) : (
-          <div className="bg-black/60 border border-lime-500 p-6 rounded-lg shadow-lg transition-opacity duration-500 ease-in opacity-100">
+          <div className="theme-card border p-6 rounded-lg shadow-lg transition-opacity duration-500 ease-in opacity-100">
             <div className="flex items-center gap-6 mb-6">
               <label htmlFor="avatar-upload" className="cursor-pointer">
                 <img
@@ -158,17 +161,17 @@ export default function Profile() {
                 {editMode ? (
                   <>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lime-200 font-semibold">Detective</span>
+                      <span className="theme-subtitle font-semibold">User</span>
                       <input
                         type="text"
-                        className="text-black rounded px-2 py-1"
+                        className="theme-input rounded px-2 py-1"
                         value={nameInput}
                         onChange={(e) => setNameInput(e.target.value)}
                       />
                     </div>
                     <input
                       type="email"
-                      className="text-black rounded px-2 py-1"
+                      className="theme-input rounded px-2 py-1"
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       placeholder="Email"
@@ -176,16 +179,16 @@ export default function Profile() {
                   </>
                 ) : (
                   <>
-                    <h3 className="text-2xl font-bold text-lime-200">
-                      Detective {profileData.name}
+                    <h3 className="text-2xl font-bold theme-subtitle">
+                      {profileData.name}
                     </h3>
-                    <p className="text-lime-300 text-sm">{profileData.email}</p>
+                    <p className="theme-title text-sm">{profileData.email}</p>
                   </>
                 )}
-                <p className="text-lime-400 text-xs mt-1">
+                <p className="theme-title text-xs mt-1">
                   🗓️ Joined: {new Date(profileData.createdAt).toDateString()}
                 </p>
-                <p className="text-lime-400 text-xs mt-1">🔑 Role: {role}</p>
+                <p className="theme-title text-xs mt-1">🔑 Role: {role}</p>
               </div>
             </div>
 
@@ -195,15 +198,15 @@ export default function Profile() {
                   <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-4 py-2 rounded disabled:opacity-50"
+                    className="theme-btn font-semibold px-4 py-2 rounded disabled:opacity-50"
                   >
                     💾 Save
                   </button>
                   <button
                     onClick={() => {
                       setEditMode(false);
-                      setNameInput(profileData.name);
-                      setEmailInput(profileData.email);
+                      setNameInput(profileData?.name || "");
+                      setEmailInput(profileData?.email || "");
                       setError("");
                       setSuccess("");
                     }}
@@ -215,7 +218,7 @@ export default function Profile() {
               ) : (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-4 py-2 rounded"
+                  className="theme-btn font-semibold px-4 py-2 rounded"
                 >
                   ✏️ Edit Profile
                 </button>
