@@ -289,7 +289,7 @@ export default function Charts() {
   const [versionName, setVersionName] = useState("");
   const [showFullEditor, setShowFullEditor] = useState(false);
   const [showInsertionMenu, setShowInsertionMenu] = useState(false);
-  const [currentUploadId, setCurrentUploadId] = useState(null);
+  const [currentUploadId] = useState(null);
   const [activeDashboard, setActiveDashboard] = useState(null);
   
   const [featureTab, setFeatureTab] = useState("insights"); // insights, dashboard, sharing

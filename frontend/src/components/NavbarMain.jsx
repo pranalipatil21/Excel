@@ -62,11 +62,6 @@ export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
     navigate("/login", { replace: true });
   };
 
-  const handleNavigate = (path) => {
-    setShowDropdown(false);
-    navigate(path);
-  };
-
   return (
     <nav className="theme-nav relative z-10 flex justify-between items-center px-6 py-4 border-b shadow-md">
       {/* Left: Logo + Drawer */}
