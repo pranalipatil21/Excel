@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/NavbarAuth";
 import Footer from "../components/Footer";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -11,7 +13,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      let res = await fetch("http://localhost:5000/api/auth/login", {
+      let res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -21,7 +23,7 @@ export default function Login() {
 
       // Fallback: if admin login via common endpoint fails, try dedicated admin endpoint.
       if (!res.ok && String(email).trim().toLowerCase() === "admin@excelverse.com") {
-        const adminRes = await fetch("http://localhost:5000/api/auth/admin/login", {
+        const adminRes = await fetch(`${API_BASE}/auth/admin/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
