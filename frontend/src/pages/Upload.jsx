@@ -60,7 +60,7 @@ export default function Upload() {
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        await axios.post(`${API_BASE}/upload/excel`, formData, {
+        const response = await axios.post(`${API_BASE}/upload/excel`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -70,6 +70,10 @@ export default function Upload() {
             setProgress(percent);
           },
         });
+
+        if (response.data?.fileId) {
+          localStorage.setItem("currentUploadId", response.data.fileId);
+        }
 
         setTimeout(() => {
           setIsLoading(false);

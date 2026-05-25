@@ -16,12 +16,14 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
+import axios from "axios";
 import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import AIInsightsPanel from "../components/AIInsightsPanel";
 import DashboardBuilder from "../components/DashboardBuilder";
 import DashboardSharing from "../components/DashboardSharing";
+import { API_BASE } from "../utils/apiBase";
 
 const EDITOR_STORAGE_KEY = "excelEditorWorkbook";
 const EDITOR_VERSIONS_KEY = "excelEditorVersions";
@@ -289,7 +291,7 @@ export default function Charts() {
   const [versionName, setVersionName] = useState("");
   const [showFullEditor, setShowFullEditor] = useState(false);
   const [showInsertionMenu, setShowInsertionMenu] = useState(false);
-  const [currentUploadId] = useState(null);
+  const [currentUploadId] = useState(() => localStorage.getItem("currentUploadId") || null);
   const [activeDashboard, setActiveDashboard] = useState(null);
   
   const [featureTab, setFeatureTab] = useState("insights"); // insights, dashboard, sharing
@@ -365,6 +367,32 @@ export default function Charts() {
     setActiveSheetId(initialWorkbook[0].id);
     setRenameSheetName(initialWorkbook[0].name);
   }, []);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      if (!currentUploadId) return;
+
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await axios.get(`${API_BASE}/dashboard/${currentUploadId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const dashboards = res.data?.dashboards || [];
+        if (dashboards.length > 0) {
+          setActiveDashboard(dashboards[0]);
+        }
+      } catch (error) {
+        console.error("Failed to load dashboard:", error);
+      }
+    };
+
+    loadDashboard();
+  }, [currentUploadId]);
 
   useEffect(() => {
     if (editorSheets.length > 0) {
@@ -1197,13 +1225,50 @@ const addRow = (position = "below") => {
                   initialDashboard={activeDashboard}
                   onSave={async (dashboardData) => {
                     try {
-                      console.log("Saving dashboard:", dashboardData);
-                      // Show success message
-                      alert("✅ Dashboard saved successfully! (Backend integration in progress)");
-                      setActiveDashboard(dashboardData);
+                      const token = localStorage.getItem("token");
+                      if (!token) {
+                        alert("Please login again to save the dashboard.");
+                        return;
+                      }
+
+                      if (!dashboardData.uploadId) {
+                        alert("Upload the file again or make sure the upload ID is available before saving the dashboard.");
+                        return;
+                      }
+
+                      const payload = {
+                        uploadId: dashboardData.uploadId,
+                        name: dashboardData.name,
+                        description: dashboardData.description,
+                        widgets: dashboardData.widgets,
+                        isDefault: dashboardData.isDefault,
+                      };
+
+                      let response;
+                      if (activeDashboard?._id) {
+                        response = await axios.patch(
+                          `${API_BASE}/dashboard/${activeDashboard._id}`,
+                          payload,
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+                      } else {
+                        response = await axios.post(`${API_BASE}/dashboard`, payload, {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        });
+                      }
+
+                      const savedDashboard = response.data?.dashboard || dashboardData;
+                      setActiveDashboard(savedDashboard);
+                      alert(response.data?.msg || "✅ Dashboard saved successfully!");
                     } catch (error) {
                       console.error("Error saving dashboard:", error);
-                      alert("❌ Failed to save dashboard");
+                      alert(error.response?.data?.msg || error.message || "❌ Failed to save dashboard");
                     }
                   }}
                 />
