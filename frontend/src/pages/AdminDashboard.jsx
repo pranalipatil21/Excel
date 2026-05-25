@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarMain from "../components/NavbarMain";
 import Footer from "../components/Footer";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiBase";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

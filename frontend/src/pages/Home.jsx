@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiBase";
 
 export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

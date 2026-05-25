@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import NavbarMain from "../components/NavbarMain";
 import Footer from "../components/Footer";
+import { API_BASE } from "../utils/apiBase";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -10,7 +11,6 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   const handleLogin = async (e) => {
     e.preventDefault();

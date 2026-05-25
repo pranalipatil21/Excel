@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAvatar from "../assests/detective.png";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiBase";
 
 export default function NavbarMain({ onToggleDrawer, onSearchChange }) {
   const [showDropdown, setShowDropdown] = useState(false);

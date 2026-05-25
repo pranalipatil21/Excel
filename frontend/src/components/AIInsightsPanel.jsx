@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../utils/apiBase";
 
 /**
  * AI Insights Panel Component
@@ -12,8 +13,6 @@ const AIInsightsPanel = ({ chartData = null, tableData = null, uploadId = null }
   const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("summary"); // summary, comparison, explain, dependency
-
-  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   /**
    * Generate auto-summary from data

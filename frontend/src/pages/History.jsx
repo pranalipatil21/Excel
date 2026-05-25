@@ -4,8 +4,7 @@ import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import excelIcon from "../assests/excel-icon.png";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiBase";
 
 export default function History() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/NavbarAuth";
 import Footer from "../components/Footer";
-
-const RAW_API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-const API_BASE = RAW_API_BASE.replace(/\/+$/, "").endsWith("/api")
-  ? RAW_API_BASE.replace(/\/+$/, "")
-  : `${RAW_API_BASE.replace(/\/+$/, "")}/api`;
+import { API_BASE } from "../utils/apiBase";
 
 export default function Login() {
   const navigate = useNavigate();

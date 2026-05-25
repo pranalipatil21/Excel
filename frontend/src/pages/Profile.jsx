@@ -4,8 +4,7 @@ import NavbarMain from "../components/NavbarMain";
 import SidebarDrawer from "../components/SidebarDrawer";
 import Footer from "../components/Footer";
 import defaultAvatar from "../assests/detective.png";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiBase";
 
 export default function Profile() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -92,7 +91,10 @@ export default function Profile() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminRole");
+    navigate("/login", { replace: true });
   };
 
   const handleAvatarChange = (e) => {
