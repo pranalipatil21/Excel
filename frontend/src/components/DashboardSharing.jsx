@@ -21,10 +21,23 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token") || localStorage.getItem("adminToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
 
   const loadShares = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/dashboard/${dashboardId}/shares`);
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) {
+        setShares([]);
+        return;
+      }
+
+      const response = await axios.get(`${API_BASE}/dashboard/${dashboardId}/shares`, {
+        headers,
+      });
       setShares(response.data.shares || []);
     } catch (error) {
       console.error("Error loading shares:", error);
@@ -70,7 +83,10 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
 
       const response = await axios.post(
         `${API_BASE}/dashboard/${dashboardId}/share`,
-        shareData
+        shareData,
+        {
+          headers: getAuthHeaders(),
+        }
       );
 
       // Add new share to list
@@ -116,7 +132,9 @@ const DashboardSharing = ({ dashboardId, onShare = null }) => {
     }
 
     try {
-      await axios.delete(`${API_BASE}/dashboard/share/${shareId}`);
+      await axios.delete(`${API_BASE}/dashboard/share/${shareId}`, {
+        headers: getAuthHeaders(),
+      });
 
       setShares((prev) => prev.filter((s) => s._id !== shareId));
       setSuccessMessage("Share revoked successfully");
