@@ -195,3 +195,5 @@ This produces the production bundle in the `build` directory.
 - The upload flow currently uses the first worksheet in the workbook for analysis.
 - The frontend caches a limited preview of the uploaded rows so the visualization pages load quickly.
 - Gemini responses are fallback-safe, so the app can still show analysis text even when the API key is unavailable.
+
+- Live link: https://excel-roan-kappa.vercel.app/
